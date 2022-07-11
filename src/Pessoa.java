@@ -23,9 +23,9 @@ public class Pessoa implements Comparable<Pessoa> {
     @Override
     public int compareTo(Pessoa pessoa) {
         if(pessoa.getBirthDate().isAfter(this.getBirthDate())) {
-            return -1;
-        } else if(pessoa.getBirthDate().isBefore(this.getBirthDate())) {
             return 1;
+        } else if(pessoa.getBirthDate().isBefore(this.getBirthDate())) {
+            return -1;
         } else {
             return 0;
         }
@@ -54,10 +54,12 @@ public class Pessoa implements Comparable<Pessoa> {
      */
     private String birthDayFormat(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE", new Locale("pt", "BR"));
-        return (
-            this.birthDate.format(dtf).substring(0, 1).toUpperCase() + 
-            this.birthDate.format(dtf).substring(1).toLowerCase()
-        );
+        String day = dtf.format(this.birthDate);
+        day = day.substring(0, 1).toUpperCase() + day.substring(1);
+        if(day.contains("-feira")) {
+            day = day.replace("-feira", " Feira");
+        }
+        return day;
     }
     
     
