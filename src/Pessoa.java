@@ -2,18 +2,39 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Formatter;
 import java.util.Locale;
-
+// Import lombok.Data;
 public class Pessoa implements Comparable<Pessoa> {
     private String name;
     private LocalDate birthDate;
+    private final DateTimeFormatter dateFormatterParser = DateTimeFormatter.ofPattern("dd/MM/yy", new Locale("pt", "BR"));
+
     public Pessoa(String name, String birthDate) {
-        DateTimeFormatter dateFormatterParser = DateTimeFormatter.ofPattern("yy/MM/dd");       
         this.name = name;
-        LocalDate parseBirthDate = LocalDate.parse(birthDate, dateFormatterParser);
-        this.birthDate = parseBirthDate;
-        
-        
+        this.birthDate = extrairAno(birthDate);
     }
+    
+    private LocalDate extrairAno(String birthDate) {
+        final DateTimeFormatter ano = DateTimeFormatter.ofPattern("yy", new Locale("pt", "BR"));
+        
+        LocalDate data;
+        String[] split = birthDate.split("/");
+        int anoInt = Integer.parseInt(split[2]);
+        
+        if(anoInt>= 0 && anoInt < Integer.valueOf(LocalDate.now().format(ano))) {
+            
+            data = LocalDate.parse(birthDate, dateFormatterParser);
+            return data;
+        }
+        
+        split[2] = "19"+split[2];
+        data = LocalDate.of(Integer.parseInt(split[2]), Integer.parseInt(split[1]), Integer.parseInt(split[0]));
+        if(data.isAfter(LocalDate.now())) {
+            // Pessoa não pode ter mais de 99 anos
+            throw new IllegalArgumentException("Data de nascimento inválida");
+        }
+        return data;
+    }
+
     public String getName() {
         return name;
     }
@@ -48,10 +69,6 @@ public class Pessoa implements Comparable<Pessoa> {
 
     }
 
-    /**
-     * 
-     * @return the birthDayFormat formatado em português e camelCase
-     */
     private String birthDayFormat(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("EEEE", new Locale("pt", "BR"));
         String day = dtf.format(this.birthDate);
